@@ -1,9 +1,11 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
 }
 
 android {
-    namespace = "com.example.dogs_littleapp"
+    namespace = "com.littleapp.dogs"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -11,13 +13,17 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.dogs_littleapp"
+        applicationId = "com.littleapp.dogs"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    // test
+    sourceSets {
+        getByName("test") { resources.srcDirs("src/androidTest/res") }
     }
 
     buildTypes {
@@ -30,18 +36,47 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
+    }
+    buildFeatures {
+        dataBinding = true
+        //viewBinding = true
     }
 }
 
 dependencies {
-    implementation(libs.androidx.activity.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.material)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.fragment.ktx) //Fragment
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.preference.ktx)           //Shared Preference
+    //test
+    testImplementation(libs.androidx.core.testing)
+    testImplementation(libs.mockwebserver)
+    testImplementation(libs.okhttp3.mockwebserver)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    //Layout
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.material)
+    implementation(libs.androidx.legacy.support.v4)
+    implementation(libs.androidx.cardview)
+    //ViewModel
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    //LiveData
+    implementation(libs.lifecycle.livedata.ktx)
+    //Retrofit
+    implementation(libs.retrofit)  //Retrofit
+    implementation(libs.retrofit2.converter.gson)  //Gson
+    //Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    //Others
+    implementation(libs.picasso)                   //Picasso
 }
