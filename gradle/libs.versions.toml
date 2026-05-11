@@ -1,7 +1,7 @@
 [versions]
 agp = "9.2.1"
 cardview = "1.0.0"
-converterGson = "2.9.0"
+converterGson = "3.0.0"
 coreKtx = "1.18.0"
 coreTesting = "2.2.0"
 fragmentKtx = "1.8.9"
@@ -21,7 +21,7 @@ mockwebserverVersion = "5.3.2"
 picasso = "2.71828"
 preferenceKtx = "1.2.1"
 legacySupportV4 = "1.0.0"
-retrofit = "2.9.0"
+retrofit = "3.0.0"
 
 [libraries]
 androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
