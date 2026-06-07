@@ -1,5 +1,8 @@
 package com.littleapp.dogs.viewmodel
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,27 +17,29 @@ enum class DogApiStatus { LOADING, ERROR, DONE, START }
 class DogViewModel : ViewModel() {
 
     private var _breedsList = MutableLiveData<Array<String>>()
-    val breedsList: LiveData<Array<String>>
-        get() = _breedsList
+    val breedsList: LiveData<Array<String>> get() = _breedsList
 
     fun setBreedsList(list: Array<String>) {
         _breedsList.value = list
     }
 
     private val _status = MutableLiveData<DogApiStatus>()
-    val status: LiveData<DogApiStatus>
-        get() = _status
+    val status: LiveData<DogApiStatus> get() = _status
 
     init {
         _status.value = DogApiStatus.START
     }
 
     private val _photosDog = MutableLiveData<List<String>>()
-    val photosDog: LiveData<List<String>>
-        get() = _photosDog
+    val photosDog: LiveData<List<String>> get() = _photosDog
 
+    fun getDogPhotosList(context: Context, item: String) {
+        if (!isInternetAvailable(context)) {
+            _photosDog.value = listOf()
+            _status.value = DogApiStatus.ERROR
+            return
+        }
 
-    fun getDogPhotosList(item: String) {
         _status.value = DogApiStatus.LOADING
         viewModelScope.launch {
             try {
@@ -50,6 +55,15 @@ class DogViewModel : ViewModel() {
                 _photosDog.value = listOf()
             }
         }
+    }
+
+    private fun isInternetAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+
+        // Checks if basic internet capability is active, completely ignoring transport types or proxies
+        return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     private suspend fun connection1(t: String): DogApi {

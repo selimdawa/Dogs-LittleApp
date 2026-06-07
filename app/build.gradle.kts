@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("kotlin-kapt")
 }
 
 android {
@@ -22,9 +21,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     // test
-    sourceSets {
-        getByName("test") { resources.srcDirs("src/androidTest/res") }
-    }
+    //sourceSets {
+    //    getByName("test") { resources.srcDirs("src/androidTest/res") }
+    //}
 
     buildTypes {
         release {
@@ -46,7 +45,7 @@ android {
     }
     buildFeatures {
         dataBinding = true
-        //viewBinding = true
+        viewBinding = true
     }
 }
 
@@ -59,7 +58,7 @@ dependencies {
     //test
     testImplementation(libs.androidx.core.testing)
     testImplementation(libs.mockwebserver)
-    testImplementation(libs.okhttp3.mockwebserver)
+    //testImplementation(libs.okhttp3.mockwebserver)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,9 +67,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.androidx.cardview)
-    //ViewModel
+    //Life Cycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    //LiveData
     implementation(libs.lifecycle.livedata.ktx)
     //Retrofit
     implementation(libs.retrofit)  //Retrofit
@@ -79,4 +77,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     //Others
     implementation(libs.picasso)                   //Picasso
+    implementation(libs.viewbinding.property.delegate)
+    implementation(libs.coil)
 }
