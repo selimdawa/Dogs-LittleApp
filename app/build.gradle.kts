@@ -58,7 +58,6 @@ dependencies {
     //test
     testImplementation(libs.androidx.core.testing)
     testImplementation(libs.mockwebserver)
-    //testImplementation(libs.okhttp3.mockwebserver)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,7 +66,9 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.androidx.cardview)
-    //Life Cycle
+    //Image
+    implementation(libs.coil)    //Coil
+    // Life Cycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.lifecycle.livedata.ktx)
     //Retrofit
@@ -75,8 +76,6 @@ dependencies {
     implementation(libs.retrofit2.converter.gson)  //Gson
     //Coroutines
     implementation(libs.kotlinx.coroutines.core)
-    //Others
-    implementation(libs.picasso)                   //Picasso
+    //Other's
     implementation(libs.viewbinding.property.delegate)
-    implementation(libs.coil)
 }
