@@ -16,7 +16,7 @@ enum class DogApiStatus { LOADING, ERROR, DONE, START }
 
 class DogViewModel : ViewModel() {
 
-    private var _breedsList = MutableLiveData<Array<String>>()
+    private val _breedsList = MutableLiveData<Array<String>>()
     val breedsList: LiveData<Array<String>> get() = _breedsList
 
     fun setBreedsList(list: Array<String>) {
@@ -50,7 +50,7 @@ class DogViewModel : ViewModel() {
                 }
                 _photosDog.value = converter(list)
                 _status.value = DogApiStatus.DONE
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 _status.value = DogApiStatus.ERROR
                 _photosDog.value = emptyList()
             }

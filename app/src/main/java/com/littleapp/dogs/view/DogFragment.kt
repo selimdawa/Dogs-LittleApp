@@ -21,7 +21,9 @@ import com.littleapp.dogs.viewmodel.DogViewModel
 
 class DogFragment : Fragment(R.layout.fragment_dog), AdapterView.OnItemClickListener {
 
-    private val binding by viewBinding(FragmentDogBinding::bind)
+    private var _binding: FragmentDogBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: DogViewModel by viewModels()
     private val dogAdapter = DogAdapter()
 
@@ -34,6 +36,7 @@ class DogFragment : Fragment(R.layout.fragment_dog), AdapterView.OnItemClickList
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentDogBinding.bind(view)
 
         setupRecyclerView()
         setupDropdownMenu()
@@ -63,7 +66,7 @@ class DogFragment : Fragment(R.layout.fragment_dog), AdapterView.OnItemClickList
         viewModel.breedsList.observe(viewLifecycleOwner) { newList ->
             breedsAdapter.clear()
             if (newList != null) {
-                breedsAdapter.addAll(newList)
+                breedsAdapter.addAll(*newList)
             }
             breedsAdapter.notifyDataSetChanged()
         }
@@ -132,6 +135,7 @@ class DogFragment : Fragment(R.layout.fragment_dog), AdapterView.OnItemClickList
             connectivityManager?.unregisterNetworkCallback(callback)
         }
         networkCallback = null
+        _binding = null
     }
 
     private fun loadingBreedsList() {

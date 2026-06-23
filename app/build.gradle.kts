@@ -32,7 +32,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
-        dataBinding = true
         viewBinding = true
     }
 }
@@ -62,6 +61,4 @@ dependencies {
     implementation(libs.retrofit2.converter.gson)  //Gson
     //Coroutines
     implementation(libs.kotlinx.coroutines.core)
-    //Other's
-    implementation(libs.viewbinding.property.delegate)
 }
