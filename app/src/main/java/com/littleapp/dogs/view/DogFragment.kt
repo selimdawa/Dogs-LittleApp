@@ -13,7 +13,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import by.kirich1409.viewbindingdelegate.viewBinding
 import com.littleapp.dogs.R
 import com.littleapp.dogs.Unit.DATA
 import com.littleapp.dogs.databinding.FragmentDogBinding
@@ -25,31 +24,48 @@ class DogFragment : Fragment(R.layout.fragment_dog), AdapterView.OnItemClickList
     private val binding by viewBinding(FragmentDogBinding::bind)
     private val viewModel: DogViewModel by viewModels()
     private val dogAdapter = DogAdapter()
+
+    private val breedsAdapter by lazy {
+        ArrayAdapter<String>(requireContext(), R.layout.list_breeds, mutableListOf())
+    }
+
     private var lastSelectedBreed: String? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        loadingBreedsList()
+        setupRecyclerView()
+        setupDropdownMenu()
 
+        binding.toolbar.nameSpace.text = DATA.DOGS
+
+        setupObservers()
+        registerNetworkCallback()
+        loadingBreedsList()
+    }
+
+    private fun setupRecyclerView() {
         with(binding.recyclerViewDog) {
             adapter = dogAdapter
             layoutManager = LinearLayoutManager(requireContext())
         }
-
-        binding.toolbar.nameSpace.text = DATA.DOGS
-        observer()
-        registerNetworkCallback()
     }
 
-    private fun observer() {
+    private fun setupDropdownMenu() {
+        with(binding.autoCompleteTextView) {
+            setAdapter(breedsAdapter)
+            onItemClickListener = this@DogFragment
+        }
+    }
+
+    private fun setupObservers() {
         viewModel.breedsList.observe(viewLifecycleOwner) { newList ->
-            val adapter = ArrayAdapter(requireContext(), R.layout.list_breeds, newList)
-            with(binding.autoCompleteTextView) {
-                setAdapter(adapter)
-                onItemClickListener = this@DogFragment
+            breedsAdapter.clear()
+            if (newList != null) {
+                breedsAdapter.addAll(newList)
             }
+            breedsAdapter.notifyDataSetChanged()
         }
 
         viewModel.photosDog.observe(viewLifecycleOwner) { photos ->
@@ -57,23 +73,23 @@ class DogFragment : Fragment(R.layout.fragment_dog), AdapterView.OnItemClickList
         }
 
         viewModel.status.observe(viewLifecycleOwner) { status ->
-            when (status) {
-                DogApiStatus.START -> {
-                    binding.statusImageError.visibility = View.GONE
-                    binding.recyclerViewDog.visibility = View.VISIBLE
-                }
-                DogApiStatus.LOADING -> {
-                    binding.statusImageError.visibility = View.GONE
-                    binding.recyclerViewDog.visibility = View.GONE
-                }
-                DogApiStatus.ERROR -> {
-                    binding.statusImageError.visibility = View.VISIBLE
-                    binding.recyclerViewDog.visibility = View.GONE
-                }
-                DogApiStatus.DONE -> {
-                    binding.statusImageError.visibility = View.GONE
-                    binding.recyclerViewDog.visibility = View.VISIBLE
-                }
+            handleUiState(status)
+        }
+    }
+
+    private fun handleUiState(status: DogApiStatus) {
+        when (status) {
+            DogApiStatus.START, DogApiStatus.DONE -> {
+                binding.statusImageError.visibility = View.GONE
+                binding.recyclerViewDog.visibility = View.VISIBLE
+            }
+            DogApiStatus.LOADING -> {
+                binding.statusImageError.visibility = View.GONE
+                binding.recyclerViewDog.visibility = View.GONE
+            }
+            DogApiStatus.ERROR -> {
+                binding.statusImageError.visibility = View.VISIBLE
+                binding.recyclerViewDog.visibility = View.GONE
             }
         }
     }
@@ -83,7 +99,7 @@ class DogFragment : Fragment(R.layout.fragment_dog), AdapterView.OnItemClickList
         Toast.makeText(requireContext(), item, Toast.LENGTH_LONG).show()
 
         lastSelectedBreed = item
-        viewModel.getDogPhotosList(requireContext(), item)
+        viewModel.getDogPhotosList(requireContext().applicationContext, item)
     }
 
     private fun registerNetworkCallback() {
@@ -101,12 +117,11 @@ class DogFragment : Fragment(R.layout.fragment_dog), AdapterView.OnItemClickList
                     val breedToFetch = lastSelectedBreed
 
                     if (currentStatus == DogApiStatus.ERROR && breedToFetch != null) {
-                        viewModel.getDogPhotosList(requireContext(), breedToFetch)
+                        viewModel.getDogPhotosList(requireContext().applicationContext, breedToFetch)
                     }
                 }
             }
         }
-
         connectivityManager.registerNetworkCallback(request, networkCallback!!)
     }
 
@@ -116,6 +131,7 @@ class DogFragment : Fragment(R.layout.fragment_dog), AdapterView.OnItemClickList
         networkCallback?.let { callback ->
             connectivityManager?.unregisterNetworkCallback(callback)
         }
+        networkCallback = null
     }
 
     private fun loadingBreedsList() {

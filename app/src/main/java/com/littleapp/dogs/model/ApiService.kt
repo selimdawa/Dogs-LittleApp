@@ -13,14 +13,14 @@ private val retrofit = Retrofit.Builder()
 
 interface ApiService {
 
-    @GET(value = "akita/images")
-    suspend fun getListImg(): DogApi
-
-    @GET(value = "{breed}/images")
+    @GET("{breed}/images")
     suspend fun getListImg(@Path("breed") breed: String): DogApi
 
-    @GET(value = "{breed}/{subBreed}/images")
-    suspend fun getListImg(@Path("breed") breed: String, @Path("subBreed") subBreed: String): DogApi
+    @GET("{breed}/{subBreed}/images")
+    suspend fun getListImg(
+        @Path("breed") breed: String,
+        @Path("subBreed") subBreed: String
+    ): DogApi
 }
 
 object DogApiService {

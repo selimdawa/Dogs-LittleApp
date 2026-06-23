@@ -35,7 +35,7 @@ class DogViewModel : ViewModel() {
 
     fun getDogPhotosList(context: Context, item: String) {
         if (!isInternetAvailable(context)) {
-            _photosDog.value = listOf()
+            _photosDog.value = emptyList()
             _status.value = DogApiStatus.ERROR
             return
         }
@@ -52,7 +52,7 @@ class DogViewModel : ViewModel() {
                 _status.value = DogApiStatus.DONE
             } catch (e: Exception) {
                 _status.value = DogApiStatus.ERROR
-                _photosDog.value = listOf()
+                _photosDog.value = emptyList()
             }
         }
     }
@@ -61,8 +61,6 @@ class DogViewModel : ViewModel() {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return false
         val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
-
-        // Checks if basic internet capability is active, completely ignoring transport types or proxies
         return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
@@ -83,10 +81,6 @@ class DogViewModel : ViewModel() {
     }
 
     private fun converter(list: DogApi): List<String> {
-        val listDog = mutableListOf<String>()
-        list.images.forEach { item ->
-            listDog.add(item)
-        }
-        return listDog
+        return list.images
     }
 }
