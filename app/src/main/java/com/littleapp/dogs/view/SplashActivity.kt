@@ -11,13 +11,14 @@ import com.littleapp.dogs.databinding.ActivitySplashBinding
 
 class SplashActivity : AppCompatActivity() {
 
-    private var binding: ActivitySplashBinding? = null
+    private var _binding: ActivitySplashBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         THEME.setThemeOfApp(this)
         super.onCreate(savedInstanceState)
-        binding = ActivitySplashBinding.inflate(layoutInflater)
-        setContentView(binding!!.root)
+        _binding = ActivitySplashBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         Handler(Looper.getMainLooper()).postDelayed({ launch() }, TIME_FINAL)
     }
@@ -25,6 +26,11 @@ class SplashActivity : AppCompatActivity() {
     private fun launch() {
         VOID.Intent1(this, CLASS.MAIN)
         finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
     companion object {
