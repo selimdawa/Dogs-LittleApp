@@ -57,12 +57,16 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.lifecycle.livedata.ktx)
     //Dagger - Hilt
-    implementation(libs.hilt.android)     //Dagger Hilt
-    ksp(libs.hilt.android.compiler)      //Dagger Hilt Compiler
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.hilt.navigation.fragment)
     //Retrofit
-    implementation(libs.retrofit.core) //Retrofit
-    implementation(libs.retrofit.converter.gson)   //Gson
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.converter.gson)
     //Kotlin Coroutines
     implementation(libs.kotlinx.coroutines.core)   //Core
     implementation(libs.kotlinx.coroutines.android) //Android
+    //Navigation
+    implementation(libs.navigation.fragment.ktx)  //Navigation Fragment
+    implementation(libs.navigation.ui.ktx)      //Navigation Components
 }
