@@ -2,9 +2,11 @@ package com.littleapp.dogs.view
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.littleapp.dogs.utils.THEME
 import com.littleapp.dogs.databinding.ActivityMainBinding
-import com.littleapp.dogs.Unit.THEME
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding

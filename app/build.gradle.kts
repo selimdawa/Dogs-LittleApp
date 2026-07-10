@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.ksp)
+    alias(libs.plugins.dagger.hilt.android)
 }
 
 android {
@@ -39,12 +41,10 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.fragment.ktx) //Fragment
+    implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.preference.ktx)           //Shared Preference
     //test
-    testImplementation(libs.androidx.core.testing)
-    testImplementation(libs.mockwebserver)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -54,11 +54,15 @@ dependencies {
     //Image
     implementation(libs.coil)    //Coil
     //Life Cycle
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.lifecycle.livedata.ktx)
+    //Dagger - Hilt
+    implementation(libs.hilt.android)     //Dagger Hilt
+    ksp(libs.hilt.android.compiler)      //Dagger Hilt Compiler
     //Retrofit
-    implementation(libs.retrofit)  //Retrofit
-    implementation(libs.retrofit2.converter.gson)  //Gson
-    //Coroutines
-    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.retrofit.core) //Retrofit
+    implementation(libs.retrofit.converter.gson)   //Gson
+    //Kotlin Coroutines
+    implementation(libs.kotlinx.coroutines.core)   //Core
+    implementation(libs.kotlinx.coroutines.android) //Android
 }

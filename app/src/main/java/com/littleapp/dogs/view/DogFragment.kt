@@ -6,7 +6,9 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -14,61 +16,52 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.littleapp.dogs.R
-import com.littleapp.dogs.Unit.DATA
+import com.littleapp.dogs.utils.DATA
 import com.littleapp.dogs.databinding.FragmentDogBinding
 import com.littleapp.dogs.viewmodel.DogApiStatus
 import com.littleapp.dogs.viewmodel.DogViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
-class DogFragment : Fragment(R.layout.fragment_dog), AdapterView.OnItemClickListener {
+@AndroidEntryPoint
+class DogFragment : Fragment(), AdapterView.OnItemClickListener {
 
     private var _binding: FragmentDogBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: DogViewModel by viewModels()
     private val dogAdapter = DogAdapter()
-
-    private val breedsAdapter by lazy {
-        ArrayAdapter<String>(requireContext(), R.layout.list_breeds, mutableListOf())
-    }
-
     private var lastSelectedBreed: String? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        _binding = FragmentDogBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentDogBinding.bind(view)
 
-        setupRecyclerView()
-        setupDropdownMenu()
-
-        binding.toolbar.nameSpace.text = DATA.DOGS
-
-        setupObservers()
-        registerNetworkCallback()
         loadingBreedsList()
-    }
 
-    private fun setupRecyclerView() {
-        with(binding.recyclerViewDog) {
-            adapter = dogAdapter
-            layoutManager = LinearLayoutManager(requireContext())
+        with(binding) {
+            recyclerViewDog.adapter = dogAdapter
+            recyclerViewDog.layoutManager = LinearLayoutManager(requireContext())
+            toolbar.nameSpace.text = DATA.DOGS
         }
+
+        observer()
+        registerNetworkCallback()
     }
 
-    private fun setupDropdownMenu() {
-        with(binding.autoCompleteTextView) {
-            setAdapter(breedsAdapter)
-            onItemClickListener = this@DogFragment
-        }
-    }
-
-    private fun setupObservers() {
+    private fun observer() {
         viewModel.breedsList.observe(viewLifecycleOwner) { newList ->
-            breedsAdapter.clear()
-            if (newList != null) {
-                breedsAdapter.addAll(*newList)
+            val adapter = ArrayAdapter(requireContext(), R.layout.list_breeds, newList)
+            with(binding.autoCompleteTextView) {
+                setAdapter(adapter)
+                onItemClickListener = this@DogFragment
             }
-            breedsAdapter.notifyDataSetChanged()
         }
 
         viewModel.photosDog.observe(viewLifecycleOwner) { photos ->
@@ -76,23 +69,28 @@ class DogFragment : Fragment(R.layout.fragment_dog), AdapterView.OnItemClickList
         }
 
         viewModel.status.observe(viewLifecycleOwner) { status ->
-            handleUiState(status)
-        }
-    }
+            with(binding) {
+                when (status) {
+                    DogApiStatus.START -> {
+                        statusImageError.visibility = View.GONE
+                        recyclerViewDog.visibility = View.VISIBLE
+                    }
 
-    private fun handleUiState(status: DogApiStatus) {
-        when (status) {
-            DogApiStatus.START, DogApiStatus.DONE -> {
-                binding.statusImageError.visibility = View.GONE
-                binding.recyclerViewDog.visibility = View.VISIBLE
-            }
-            DogApiStatus.LOADING -> {
-                binding.statusImageError.visibility = View.GONE
-                binding.recyclerViewDog.visibility = View.GONE
-            }
-            DogApiStatus.ERROR -> {
-                binding.statusImageError.visibility = View.VISIBLE
-                binding.recyclerViewDog.visibility = View.GONE
+                    DogApiStatus.LOADING -> {
+                        statusImageError.visibility = View.GONE
+                        recyclerViewDog.visibility = View.GONE
+                    }
+
+                    DogApiStatus.ERROR -> {
+                        statusImageError.visibility = View.VISIBLE
+                        recyclerViewDog.visibility = View.GONE
+                    }
+
+                    DogApiStatus.DONE -> {
+                        statusImageError.visibility = View.GONE
+                        recyclerViewDog.visibility = View.VISIBLE
+                    }
+                }
             }
         }
     }
@@ -102,15 +100,16 @@ class DogFragment : Fragment(R.layout.fragment_dog), AdapterView.OnItemClickList
         Toast.makeText(requireContext(), item, Toast.LENGTH_LONG).show()
 
         lastSelectedBreed = item
-        viewModel.getDogPhotosList(requireContext().applicationContext, item)
+        viewModel.getDogPhotosList(item)
     }
 
     private fun registerNetworkCallback() {
-        val connectivityManager = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        val request = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .build()
+        val request =
+            NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build()
 
         networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
@@ -120,21 +119,22 @@ class DogFragment : Fragment(R.layout.fragment_dog), AdapterView.OnItemClickList
                     val breedToFetch = lastSelectedBreed
 
                     if (currentStatus == DogApiStatus.ERROR && breedToFetch != null) {
-                        viewModel.getDogPhotosList(requireContext().applicationContext, breedToFetch)
+                        viewModel.getDogPhotosList(breedToFetch)
                     }
                 }
             }
         }
+
         connectivityManager.registerNetworkCallback(request, networkCallback!!)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+        val connectivityManager =
+            context?.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
         networkCallback?.let { callback ->
             connectivityManager?.unregisterNetworkCallback(callback)
         }
-        networkCallback = null
         _binding = null
     }
 

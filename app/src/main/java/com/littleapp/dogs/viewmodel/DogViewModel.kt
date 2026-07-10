@@ -1,20 +1,24 @@
 package com.littleapp.dogs.viewmodel
 
-import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.littleapp.dogs.Unit.DATA
-import com.littleapp.dogs.model.DogApi
-import com.littleapp.dogs.model.DogApiService
+import com.littleapp.dogs.service.ApiService
+import com.littleapp.dogs.utils.DATA
+import com.littleapp.dogs.service.DogApi
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 enum class DogApiStatus { LOADING, ERROR, DONE, START }
 
-class DogViewModel : ViewModel() {
+@HiltViewModel
+class DogViewModel @Inject constructor(
+    private val apiService: ApiService, private val connectivityManager: ConnectivityManager
+) : ViewModel() {
 
     private val _breedsList = MutableLiveData<Array<String>>()
     val breedsList: LiveData<Array<String>> get() = _breedsList
@@ -23,18 +27,14 @@ class DogViewModel : ViewModel() {
         _breedsList.value = list
     }
 
-    private val _status = MutableLiveData<DogApiStatus>()
+    private val _status = MutableLiveData(DogApiStatus.START)
     val status: LiveData<DogApiStatus> get() = _status
-
-    init {
-        _status.value = DogApiStatus.START
-    }
 
     private val _photosDog = MutableLiveData<List<String>>()
     val photosDog: LiveData<List<String>> get() = _photosDog
 
-    fun getDogPhotosList(context: Context, item: String) {
-        if (!isInternetAvailable(context)) {
+    fun getDogPhotosList(item: String) {
+        if (!isInternetAvailable()) {
             _photosDog.value = emptyList()
             _status.value = DogApiStatus.ERROR
             return
@@ -43,11 +43,7 @@ class DogViewModel : ViewModel() {
         _status.value = DogApiStatus.LOADING
         viewModelScope.launch {
             try {
-                val list = if (DATA.SPACE in item) {
-                    connection2(item)
-                } else {
-                    connection1(item)
-                }
+                val list = if (DATA.SPACE in item) connection2(item) else connection1(item)
                 _photosDog.value = converter(list)
                 _status.value = DogApiStatus.DONE
             } catch (_: Exception) {
@@ -57,30 +53,24 @@ class DogViewModel : ViewModel() {
         }
     }
 
-    private fun isInternetAvailable(context: Context): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private fun isInternetAvailable(): Boolean {
         val network = connectivityManager.activeNetwork ?: return false
         val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
         return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     private suspend fun connection1(t: String): DogApi {
-        val url = textLowercase(t)
-        return DogApiService.retrofitService.getListImg(url)
+        return apiService.getListImg(t.lowercase())
     }
 
     private suspend fun connection2(t: String): DogApi {
         val list = t.split(DATA.SPACE)
-        val breed = textLowercase(list[0])
-        val subBred = textLowercase(list[1])
-        return DogApiService.retrofitService.getListImg(breed, subBred)
-    }
-
-    private fun textLowercase(text: String): String {
-        return text.lowercase()
+        val breed = list[0].lowercase()
+        val subBreed = list[1].lowercase()
+        return apiService.getListImg(breed, subBreed)
     }
 
     private fun converter(list: DogApi): List<String> {
-        return list.images
+        return list.images.toList()
     }
 }
