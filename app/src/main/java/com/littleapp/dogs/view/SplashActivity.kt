@@ -4,9 +4,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
-import com.littleapp.dogs.utils.CLASS
 import com.littleapp.dogs.utils.THEME
-import com.littleapp.dogs.utils.VOID
+import com.littleapp.dogs.utils.launchActivity
 import com.littleapp.dogs.databinding.ActivitySplashBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -26,8 +25,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun launch() {
-        VOID.Intent1(this, CLASS.MAIN)
-        finish()
+        launchActivity<MainActivity>(finishCaller = true)
     }
 
     override fun onDestroy() {

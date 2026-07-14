@@ -53,10 +53,19 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.material)
     //Image
-    implementation(libs.coil)    //Coil
-    //Life Cycle
+    implementation(libs.coil)                    //Coil Kotlin Image
+    //Lifecycle
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.lifecycle.livedata.ktx)
+    //Kotlin Coroutines
+    implementation(libs.kotlinx.coroutines.core)   //Core
+    implementation(libs.kotlinx.coroutines.android) //Android
+    //Room
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    //Navigation
+    implementation(libs.navigation.fragment.ktx)  //Navigation Fragment
+    implementation(libs.navigation.ui.ktx)      //Navigation Components
     //Dagger - Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
@@ -64,10 +73,4 @@ dependencies {
     //Retrofit
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.converter.gson)
-    //Kotlin Coroutines
-    implementation(libs.kotlinx.coroutines.core)   //Core
-    implementation(libs.kotlinx.coroutines.android) //Android
-    //Navigation
-    implementation(libs.navigation.fragment.ktx)  //Navigation Fragment
-    implementation(libs.navigation.ui.ktx)      //Navigation Components
 }
