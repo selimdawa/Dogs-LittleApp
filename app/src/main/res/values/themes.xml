@@ -20,7 +20,7 @@
 
         <!--Search Box-->
     <style name="changeBackgroundColor" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
-        <item name="colorSurface">?tickColor</item>
+        <item name="colorSurface">?trackColor</item>
         <item name="endIconTint">@color/white</item>
     </style>
 </resources>
